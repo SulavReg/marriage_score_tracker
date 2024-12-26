@@ -21,6 +21,10 @@ export default function Home() {
           <li>Click "Create New Game" to input the number of players and their names.</li>
           <li>For each round, players will check if they've "seen" and input their scores.</li>
           <li>Track if players are "finished" or playing in "dupli" mode.</li>
+          <ul className="text-lg list-disc list-inside ml-6">
+            <li>If a player with "dupli" finishes, input an additional 5 points to their score.</li>
+            <li>If a "dupli" player has seen, their score will be calculated without the +3 to the total points.</li>
+          </ul>
           <li>The system will automatically calculate the scores for each round.</li>
         </ul>
 
