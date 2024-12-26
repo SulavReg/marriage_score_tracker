@@ -7,13 +7,20 @@ export default function RoundInput() {
 
   useEffect(() => {
     const playerNames = JSON.parse(localStorage.getItem('players')) || [];
-    setPlayers(playerNames.map(name => ({ name, seen: false, score: '', finished: false })));
+    setPlayers(playerNames.map(name => ({ name, seen: false, score: '', finished: false, dupli: false })));
   }, []);
 
   const handleFinish = (index) => {
     setPlayers(players.map((player, i) => ({
       ...player,
       finished: i === index,
+    })));
+  };
+
+  const handleDupliToggle = (index) => {
+    setPlayers(players.map((player, i) => ({
+      ...player,
+      dupli: i === index ? !player.dupli : player.dupli,
     })));
   };
 
@@ -25,15 +32,22 @@ export default function RoundInput() {
 
     // Step 2: Calculate scores for each player
     const updatedPlayers = players.map(player => {
+      let newScore = 0;
       if (player.seen) {
         // Seen players adjust their score using the formula
-        const newScore = (parseFloat(player.score) * playerCount) - (totalSeenScore + 3);
-        return { ...player, score: newScore };
+        if (player.dupli) {
+          // Dupli players don't get the +3
+          newScore = (parseFloat(player.score) * playerCount) - totalSeenScore;
+        } else {
+          // Seen players get the +3 added
+          newScore = (parseFloat(player.score) * playerCount) - (totalSeenScore + 3);
+        }
       } else {
         // Unseen players get a penalty based on the total seen score + 10
-        const newScore = (parseFloat(player.score) || 0) - (totalSeenScore + 10);
-        return { ...player, score: newScore };
+        newScore = (parseFloat(player.score) || 0) - (totalSeenScore + 10);
       }
+
+      return { ...player, score: newScore };
     });
 
     // Step 3: Apply the finisher's score adjustment
@@ -51,7 +65,7 @@ export default function RoundInput() {
     ]);
 
     // Reset the input fields for the next round
-    setPlayers(players.map(player => ({ ...player, score: '', seen: false, finished: false })));
+    setPlayers(players.map(player => ({ ...player, score: '', seen: false, finished: false, dupli: false })));
   };
 
   const handleScoreChange = (e, index) => {
@@ -73,7 +87,7 @@ export default function RoundInput() {
   const totalScores = getTotalScores();
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-yellow-400 via-red-400 to-pink-500 flex justify-center items-center">
+    <div className="min-h-screen bg-pastelBlue flex justify-center items-center">
       <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-5xl flex">
         {/* Left Side: Score Input */}
         <div className="w-2/3 mr-8">
@@ -109,6 +123,13 @@ export default function RoundInput() {
                       type="radio"
                       checked={player.finished}
                       onChange={() => handleFinish(index)}
+                      className="ml-2"
+                    />
+                    <label className="ml-4">Dupli:</label>
+                    <input
+                      type="checkbox"
+                      checked={player.dupli}
+                      onChange={() => handleDupliToggle(index)}
                       className="ml-2"
                     />
                   </>

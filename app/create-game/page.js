@@ -23,7 +23,7 @@ export default function CreateGame() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 flex justify-center items-center">
+    <div className="min-h-screen bg-pastelPurple flex justify-center items-center">
       <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
         <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">Create a New Game</h1>
         
@@ -51,7 +51,7 @@ export default function CreateGame() {
         <div className="flex justify-center">
           <button
             onClick={startGame}
-            className="bg-green-500 text-white p-3 px-6 rounded-lg hover:bg-green-600 transition duration-300 w-full"
+            className="bg-pastelGreen text-black px-6 py-3 rounded-lg text-xl hover:bg-green-500 transition duration-300"
           >
             Start Game
           </button>
