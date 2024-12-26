@@ -51,7 +51,7 @@ export default function CreateGame() {
         <div className="flex justify-center">
           <button
             onClick={startGame}
-            className="bg-pastelGreen text-black px-6 py-3 rounded-lg text-xl hover:bg-green-500 transition duration-300"
+            className="bg-pastelPurple text-black px-6 py-3 rounded-lg text-xl hover:bg-darkPurple transition duration-300"
           >
             Start Game
           </button>
