@@ -26,47 +26,44 @@ export default function RoundInput() {
   };
 
   const calculateScores = () => {
-    // Step 1: Calculate the total score of seen players
     const seenPlayers = players.filter(player => player.seen);
     const totalSeenScore = seenPlayers.reduce((sum, player) => sum + (parseFloat(player.score) || 0), 0);
     const playerCount = players.length;
 
-    // Step 2: Calculate scores for each player
     const updatedPlayers = players.map(player => {
       let newScore = 0;
       if (player.seen) {
-        // Seen players adjust their score using the formula
         if (player.dupli) {
-          // Dupli players don't get the +3
           newScore = (parseFloat(player.score) * playerCount) - totalSeenScore;
         } else {
-          // Seen players get the +3 added
           newScore = (parseFloat(player.score) * playerCount) - (totalSeenScore + 3);
         }
       } else {
-        // Unseen players get a penalty based on the total seen score + 10
         newScore = (parseFloat(player.score) || 0) - (totalSeenScore + 10);
       }
 
       return { ...player, score: newScore };
     });
 
-    // Step 3: Apply the finisher's score adjustment
     const finisherIndex = updatedPlayers.findIndex(player => player.finished);
     if (finisherIndex !== -1) {
       const totalScoreWithoutFinisher = updatedPlayers.reduce((sum, player) => sum + (parseFloat(player.score) || 0), 0);
-      const remainingScore = -totalScoreWithoutFinisher;  // The remainder to make the total score zero
-      updatedPlayers[finisherIndex].score += remainingScore;  // Finisher takes the remainder
+      const remainingScore = -totalScoreWithoutFinisher;
+      updatedPlayers[finisherIndex].score += remainingScore;
     }
 
-    // Step 4: Save the round's scores to the history and reset for next round
     setRoundScores(prevScores => [
       ...prevScores,
       updatedPlayers.map(player => ({ name: player.name, score: player.score })),
     ]);
 
-    // Reset the input fields for the next round
     setPlayers(players.map(player => ({ ...player, score: '', seen: false, finished: false, dupli: false })));
+  };
+
+  const undoLastRound = () => {
+    if (roundScores.length > 0) {
+      setRoundScores(prevScores => prevScores.slice(0, -1));
+    }
   };
 
   const handleScoreChange = (e, index) => {
@@ -91,7 +88,7 @@ export default function RoundInput() {
     <div className="min-h-screen bg-pastelBlue flex justify-center items-center">
       <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-5xl flex">
         {/* Left Side: Score Input */}
-        <div className="w-2/3 mr-8">
+        <div className="w-1/2 mr-6">
           <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">Round Input</h1>
 
           {players.map((player, index) => (
@@ -109,8 +106,7 @@ export default function RoundInput() {
                   }
                   className="mr-4"
                 />
-                
-                {/* Only show score input if "seen" is true */}
+
                 {player.seen && (
                   <>
                     <input
@@ -145,10 +141,25 @@ export default function RoundInput() {
           >
             Calculate Scores
           </button>
+
+          <div className="flex mt-4 space-x-4">
+            <button
+              onClick={undoLastRound}
+              className="bg-red-500 text-white p-2 px-4 rounded-lg hover:bg-red-600 transition duration-300 w-1/2"
+            >
+              Undo Last Round
+            </button>
+            <button
+              onClick={() => alert('Green button clicked')}
+              className="bg-green-500 text-white p-2 px-4 rounded-lg hover:bg-green-600 transition duration-300 w-1/2"
+            >
+              Green Button
+            </button>
+          </div>
         </div>
 
         {/* Right Side: Round Results Table */}
-        <div className="w-1/3">
+        <div className="w-1/2">
           <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">Round Results</h2>
 
           <div className="overflow-x-auto">
@@ -173,7 +184,6 @@ export default function RoundInput() {
                     })}
                   </tr>
                 ))}
-                {/* Total Scores Row */}
                 <tr>
                   <td className="px-4 py-2 font-semibold">Total</td>
                   {totalScores.map((total, index) => (
