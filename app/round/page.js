@@ -1,15 +1,20 @@
 /* eslint-disable react/no-unescaped-entities */
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';  // Importing useRouter
 
 export default function RoundInput() {
   const [players, setPlayers] = useState([]);
-  const [roundScores, setRoundScores] = useState([]);
+  const [roundScores, setRoundScores] = useState([]);  // To store the round scores
   const [finishedPlayer, setFinishedPlayer] = useState(null);  // Track the finished player
+  const router = useRouter();  // Initialize useRouter
 
   useEffect(() => {
     const playerNames = JSON.parse(localStorage.getItem('players')) || [];
     setPlayers(playerNames.map(name => ({ name, seen: false, score: '', finished: false, dupli: false })));
+
+    const savedRoundScores = JSON.parse(localStorage.getItem('roundScores')) || []; // Load saved round scores
+    setRoundScores(savedRoundScores);
   }, []);
 
   const handleFinish = (index) => {
@@ -30,11 +35,8 @@ export default function RoundInput() {
   };
 
   const calculateScores = () => {
-    // Check if any player has finished the game
     const hasFinishedPlayer = players.some(player => player.finished);
-
     if (!hasFinishedPlayer) {
-      // If no player has finished, show the alert and return
       return alert('At least one player must have finished the game!');
     }
 
@@ -53,7 +55,6 @@ export default function RoundInput() {
       } else {
         newScore = (parseFloat(player.score) || 0) - (totalSeenScore + 10);
       }
-
       return { ...player, score: newScore };
     });
 
@@ -64,10 +65,11 @@ export default function RoundInput() {
       updatedPlayers[finisherIndex].score += remainingScore;
     }
 
-    setRoundScores(prevScores => [
-      ...prevScores,
-      updatedPlayers.map(player => ({ name: player.name, score: player.score })),
-    ]);
+    setRoundScores(prevScores => {
+      const newScores = [...prevScores, updatedPlayers.map(player => ({ name: player.name, score: player.score }))];
+      localStorage.setItem('roundScores', JSON.stringify(newScores)); // Save round scores to localStorage
+      return newScores;
+    });
 
     setPlayers(players.map(player => ({ ...player, score: '', seen: false, finished: false, dupli: false })));
     setFinishedPlayer(null);  // Reset the finished player after calculating
@@ -75,7 +77,11 @@ export default function RoundInput() {
 
   const undoLastRound = () => {
     if (roundScores.length > 0) {
-      setRoundScores(prevScores => prevScores.slice(0, -1));
+      setRoundScores(prevScores => {
+        const newScores = prevScores.slice(0, -1);
+        localStorage.setItem('roundScores', JSON.stringify(newScores)); // Save updated round scores to localStorage
+        return newScores;
+      });
     }
   };
 
@@ -93,6 +99,11 @@ export default function RoundInput() {
         return total + parseFloat(playerScore);
       }, 0);
     });
+  };
+
+  // Function to handle the "Green Button" click and navigate to /endgame
+  const endGame = () => {
+    router.push('/endgame');  // This will navigate to the '/endgame' page
   };
 
   const totalScores = getTotalScores();
@@ -163,10 +174,10 @@ export default function RoundInput() {
               Undo Last Round
             </button>
             <button
-              onClick={() => alert('Green button clicked')}
+              onClick={endGame}  // Call endGame function here
               className="bg-green-500 text-white p-2 px-4 rounded-lg hover:bg-green-600 transition duration-300 w-1/2"
             >
-              Green Button
+              End Game
             </button>
           </div>
         </div>
