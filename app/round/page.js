@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';  // Importing useRouter
 export default function RoundInput() {
   const [players, setPlayers] = useState([]);
   const [roundScores, setRoundScores] = useState([]);  // To store the round scores
-  const [finishedPlayer, setFinishedPlayer] = useState(null);  // Track the finished player
+  //const [finishedPlayer, setFinishedPlayer] = useState(null);  // Track the finished player
   const router = useRouter();  // Initialize useRouter
 
   useEffect(() => {
