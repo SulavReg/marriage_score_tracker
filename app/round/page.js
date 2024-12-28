@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 export default function RoundInput() {
   const [players, setPlayers] = useState([]);
   const [roundScores, setRoundScores] = useState([]);
+  const [finishedPlayer, setFinishedPlayer] = useState(null);  // Track the finished player
 
   useEffect(() => {
     const playerNames = JSON.parse(localStorage.getItem('players')) || [];
@@ -12,10 +13,13 @@ export default function RoundInput() {
   }, []);
 
   const handleFinish = (index) => {
-    setPlayers(players.map((player, i) => ({
-      ...player,
-      finished: i === index,
-    })));
+    setPlayers(players.map((player, i) => {
+      if (i === index) {
+        return { ...player, finished: true };
+      }
+      return { ...player, finished: false };  // Reset the 'finished' flag for others
+    }));
+    setFinishedPlayer(index);  // Set the most recent player as finished
   };
 
   const handleDupliToggle = (index) => {
@@ -26,6 +30,14 @@ export default function RoundInput() {
   };
 
   const calculateScores = () => {
+    // Check if any player has finished the game
+    const hasFinishedPlayer = players.some(player => player.finished);
+
+    if (!hasFinishedPlayer) {
+      // If no player has finished, show the alert and return
+      return alert('At least one player must have finished the game!');
+    }
+
     const seenPlayers = players.filter(player => player.seen);
     const totalSeenScore = seenPlayers.reduce((sum, player) => sum + (parseFloat(player.score) || 0), 0);
     const playerCount = players.length;
@@ -58,6 +70,7 @@ export default function RoundInput() {
     ]);
 
     setPlayers(players.map(player => ({ ...player, score: '', seen: false, finished: false, dupli: false })));
+    setFinishedPlayer(null);  // Reset the finished player after calculating
   };
 
   const undoLastRound = () => {
